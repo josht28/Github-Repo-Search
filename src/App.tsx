@@ -205,7 +205,7 @@ function App() {
             </Box>
             <TabPanel value='search'>
               {noResult ? (
-                <Box>No result found</Box>
+                <Box>No repository with the keyword "{searchKey}" was found.</Box>
               ) : (
                 <Grid container my={4} rowSpacing={4} columnSpacing={8}>
                   {search.results.length > 0 &&

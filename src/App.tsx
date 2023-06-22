@@ -158,7 +158,7 @@ function App() {
               </TabPanel>
               <TabPanel value='favourites'>
                 <>
-                  <Grid container my={4} rowSpacing={4} columnSpacing={8} justifyContent="center">
+                  <Grid container my={4} rowSpacing={4} columnSpacing={8} >
                     {favouriteRepositories.length > 0 &&
                       favouriteRepositories.map((repository) => (
                         <Grid item md={6} sm={8} key={repository.node.id}>

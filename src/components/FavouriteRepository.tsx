@@ -1,23 +1,36 @@
-import { Stack, Avatar, Box, Link, Button, Typography } from "@mui/material";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import {
+  Stack,
+  Avatar,
+  Box,
+  Link,
+  Rating,
+  Button,
+  Typography,
+} from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import moment from "moment";
-import { RepositoryWithFavourite } from "../App";
+import { Repository } from "../api-services/repositories";
 
 type Props = {
-  repository: RepositoryWithFavourite;
-  onFavouritePress: () => void;
+  repository: Repository;
+  onFavoriteDeletePress: () => void;
+  onRatingPress: (rating: Repository["rating"]) => void;
 };
 
-export const DisplayRepository = function ({
+export function FavouriteRepository({
   repository,
-  onFavouritePress,
+  onFavoriteDeletePress,
+  onRatingPress,
 }: Props) {
   const date = moment(repository.node.updatedAt).format("MMM Do");
+
+  const handleRating = (event: React.SyntheticEvent, newValue: number | null) =>
+    onRatingPress(newValue);
+
   return (
     <Stack
       sx={{
-        backgroundColor: "primary.light",
+        backgroundColor: "#EDF3F5",
         padding: "20px",
         borderRadius: "10px",
         boxShadow: 5,
@@ -42,7 +55,7 @@ export const DisplayRepository = function ({
           <Avatar
             src={repository.node.owner.avatarUrl}
             sx={{ marginRight: "10px" }}
-          ></Avatar>
+          />
           <Link
             overflow="wrap"
             href={repository.node.url}
@@ -56,29 +69,34 @@ export const DisplayRepository = function ({
         <Button
           sx={{ minWidth: "130px" }}
           variant="contained"
+          color="error"
           size="small"
-          onClick={onFavouritePress}
+          onClick={onFavoriteDeletePress}
         >
-          <Stack direction="row" spacing={1} alignItems="center">
-            {repository.isFavourite ? (
-              <StarIcon fontSize="small" />
-            ) : (
-              <StarOutlineIcon fontSize="small" />
-            )}
-            <Typography>Favourite</Typography>
-          </Stack>
+          Delete
         </Button>
       </Stack>
       <Typography gutterBottom sx={{ marginBottom: "20px" }}>
         {repository.node.description}
       </Typography>
       <Stack direction="row" alignItems="center" justifyContent="space-between">
-        <Stack direction="row" alignItems="center" spacing={0.5}>
-          <StarIcon />
-          <Box>{repository.node.stargazerCount}</Box>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          {" "}
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <StarIcon />
+            <Box>{repository.node.stargazerCount}</Box>
+          </Stack>
+          <Box>Updated on {date}</Box>{" "}
         </Stack>
-        <Box>Updated on {date}</Box>
+        <Box>
+          {" "}
+          {repository.rating ? (
+            <Rating value={repository.rating} onChange={handleRating}></Rating>
+          ) : (
+            <Rating value={repository.rating} onChange={handleRating}></Rating>
+          )}
+        </Box>
       </Stack>
     </Stack>
   );
-};
+}

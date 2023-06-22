@@ -1,31 +1,32 @@
-import React, { useEffect } from "react";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Box, TextField, Grid, Stack, Tab, Button } from "@mui/material";
-import { useState } from "react";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { DisplayRepository } from "./components/DisplayRepository";
-import { FavouriteRepository } from "./components/FavouriteRepository";
-import useDebounce from "./hooks/useDebounce";
+import React, { useEffect } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box, TextField, Grid, Stack, Tab, Button } from '@mui/material';
+import { useState } from 'react';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { DisplayRepository } from './components/DisplayRepository';
+import { FavouriteRepository } from './components/FavouriteRepository';
+import useDebounce from './hooks/useDebounce';
+import CustomizedSnackbars from './components/AlertToaster';
 import {
   searchRepositories,
   searchMoreRepositories,
   Repository,
-} from "./api-services/repositories";
+} from './api-services/repositories';
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#005261",
-      light: "#EDF3F5",
+      main: '#005261',
+      light: '#EDF3F5',
     },
     secondary: {
-      main: "#31C7AD",
+      main: '#31C7AD',
     },
   },
 });
 
 export type RepositoryWithFavourite = Repository & { isFavourite: boolean };
-type TabName = "search" | "favourite";
+type TabName = 'search' | 'favourite';
 
 type Search = {
   results: RepositoryWithFavourite[];
@@ -69,12 +70,14 @@ const updatedCursor = (repositories: Repository[]) => {
 };
 
 function App() {
-  const [searchKey, setSearchKey] = useState<string>("");
+  const [searchKey, setSearchKey] = useState<string>('');
   const [search, setSearch] = useState<Search>(EMPTY_SEARCH);
   const [favouriteRepositories, setFavouriteRepositories] = useState<
     RepositoryWithFavourite[]
   >([]);
-  const [currentTab, setCurrentTab] = useState<TabName>("search");
+  const [currentTab, setCurrentTab] = useState<TabName>('search');
+  const [noResult, setNoResult] = useState(false);
+  const [alertUser, setAlertUser] = useState(false);
   const selectTab = (event: React.SyntheticEvent, tab: TabName) =>
     setCurrentTab(tab);
 
@@ -82,35 +85,49 @@ function App() {
 
   useEffect(() => {
     if (debouncedSearchKey) {
-      searchRepositories(debouncedSearchKey).then((repositories) => {
-        setSearch({
-          results: createResultWithFavorite(
-            repositories,
-            favouriteRepositories
-          ),
-          cursor: updatedCursor(repositories),
+      try {
+        searchRepositories(debouncedSearchKey).then((repositories) => {
+          if (repositories.length === 0) {
+            setNoResult(true);
+            setSearch(EMPTY_SEARCH);
+          } else {
+            setNoResult(false);
+            setSearch({
+              results: createResultWithFavorite(
+                repositories,
+                favouriteRepositories
+              ),
+              cursor: updatedCursor(repositories),
+            });
+          }
         });
-      });
+      } catch (error) {
+        setAlertUser(true);
+      }
     } else {
       setSearch(EMPTY_SEARCH);
+      setNoResult(false);
     }
   }, [debouncedSearchKey, favouriteRepositories]);
 
   const handleLoadMore = async function () {
-    const additionalRepositories = await searchMoreRepositories(
-      searchKey,
-      search.cursor
-    );
+    try {
+      const additionalRepositories = await searchMoreRepositories(
+        searchKey,
+        search.cursor
+      );
+      const additionalRepositoriesWithFavorite = createResultWithFavorite(
+        additionalRepositories,
+        favouriteRepositories
+      );
 
-    const additionalRepositoriesWithFavorite = createResultWithFavorite(
-      additionalRepositories,
-      favouriteRepositories
-    );
-
-    setSearch((prevState) => ({
-      results: [...prevState.results, ...additionalRepositoriesWithFavorite],
-      cursor: updatedCursor(additionalRepositories),
-    }));
+      setSearch((prevState) => ({
+        results: [...prevState.results, ...additionalRepositoriesWithFavorite],
+        cursor: updatedCursor(additionalRepositories),
+      }));
+    } catch (error) {
+      setAlertUser(true);
+    }
   };
 
   const deleteFavourite = (repositoryId: string) => {
@@ -134,26 +151,28 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box>
+      <CustomizedSnackbars alertUser={alertUser} closeAlert={() => {
+        setAlertUser(false);
+      } } />
+      <Box paddingTop={2}>
         <Stack
-          direction="row"
-          justifyContent="space-around"
-          alignItems="center"
+          direction='row'
+          alignItems='center'
           sx={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: '#FFFFFF',
           }}
         >
           <TextField
-            variant="standard"
-            helperText="Search for your favourite repository"
+            variant='standard'
+            helperText='Search for your favourite repository'
+            autoComplete='off'
             sx={{
-              paddingLeft: "20px",
-              paddingRight: "20px",
+              paddingLeft: '20px',
+              paddingRight: '20px',
               input: {
-                color: "primary.main",
+                color: 'primary.main',
               },
             }}
-            fullWidth
             value={searchKey}
             onChange={(
               event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
@@ -163,7 +182,7 @@ function App() {
       </Box>
       <Box
         sx={{
-          padding: "20px",
+          padding: '20px',
         }}
       >
         <Box>
@@ -171,56 +190,54 @@ function App() {
             <Box
               sx={{
                 borderBottom: 1,
-                borderColor: "divider",
+                borderColor: 'divider',
               }}
             >
               <TabList
-                aria-label="Tabs"
+                aria-label='Tabs'
                 onChange={selectTab}
-                textColor="secondary"
-                indicatorColor="secondary"
+                textColor='secondary'
+                indicatorColor='secondary'
               >
-                <Tab label="Search Result" value="search" />
-                <Tab label="Favourites" value="favourites" />
+                <Tab label='Search Result' value='search' />
+                <Tab label='Favourites' value='favourites' />
               </TabList>
             </Box>
-            <TabPanel value="search">
-              <Grid
-                container
-                my={4}
-                rowSpacing={4}
-                columnSpacing={8}
-                justifyContent="center"
-              >
-                {search.results.length > 0 &&
-                  search.results.map((repository) => (
-                    <Grid item md={6} sm={8} key={repository.node.id}>
-                      <DisplayRepository
-                        key={repository.node.id}
-                        repository={repository}
-                        onFavouritePress={() => {
-                          if (!repository.isFavourite) {
-                            setFavouriteRepositories((prevState) => [
-                              ...prevState,
-                              {
-                                ...repository,
-                                isFavourite: !repository.isFavourite,
-                                rating: 0,
-                              },
-                            ]);
-                          }
-                        }}
-                      />
-                    </Grid>
-                  ))}
-              </Grid>
+            <TabPanel value='search'>
+              {noResult ? (
+                <Box>No result found</Box>
+              ) : (
+                <Grid container my={4} rowSpacing={4} columnSpacing={8}>
+                  {search.results.length > 0 &&
+                    search.results.map((repository) => (
+                      <Grid item md={6} sm={8} key={repository.node.id}>
+                        <DisplayRepository
+                          key={repository.node.id}
+                          repository={repository}
+                          onFavouritePress={() => {
+                            if (!repository.isFavourite) {
+                              setFavouriteRepositories((prevState) => [
+                                ...prevState,
+                                {
+                                  ...repository,
+                                  isFavourite: !repository.isFavourite,
+                                  rating: 0,
+                                },
+                              ]);
+                            }
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                </Grid>
+              )}
               {search.cursor && (
-                <Stack direction="row" justifyContent="center">
+                <Stack direction='row' justifyContent='center'>
                   <Button onClick={handleLoadMore}>Load more results</Button>
                 </Stack>
               )}
             </TabPanel>
-            <TabPanel value="favourites">
+            <TabPanel value='favourites'>
               <Grid container my={4} rowSpacing={4} columnSpacing={8}>
                 {favouriteRepositories.length > 0 &&
                   favouriteRepositories.map((repository) => (

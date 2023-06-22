@@ -26,27 +26,9 @@ function App() {
   useEffect(() => {
     if (debouncedSearchKey) {
       searchRepositories(debouncedSearchKey).then((result) => {
-        let finalResult = result.map((repository) => {
-          if (
-            favouriteRepositories.find(
-              (repo) => repo.node.id === repository.node.id
-            )
-          ) {
-            return {
-              ...repository,
-              node: { ...repository.node, viewerHasStarred: true },
-            };
-          } else {
-            return repository;
-          }
-        });
+        let finalResult = matchFavourites(result);
+        updateCursor(finalResult);
         SetSearchedResults(finalResult);
-        if (finalResult.length === 10) {
-            let lastCursor = finalResult[finalResult.length - 1].cursor;
-            setCursor(lastCursor);
-        } else {
-          setCursor(null);
-        }
 
       });
     } else {
@@ -54,23 +36,43 @@ function App() {
     }
   }, [debouncedSearchKey]);
 
+  const matchFavourites = function (repositories: Repository[]) {
+     let result= repositories.map((repository) => {
+       if (
+         favouriteRepositories.find(
+           (repo) => repo.node.id === repository.node.id
+         )
+       ) {
+         return {
+           ...repository,
+           node: { ...repository.node, viewerHasStarred: true },
+         };
+       } else {
+         return repository;
+       }
+     });
+    return result;
+  }
+  const updateCursor = function (repositories: Repository[]) {
+     if (repositories.length === 10) {
+       let lastCursor = repositories[repositories.length - 1].cursor;
+       setCursor(lastCursor);
+     } else {
+       setCursor(null);
+     }
+  }
+
   const handleLoadMore = async function () {
-    console.log(cursor);
     const additionalRepositories = await searchMoreRepositories(
       searchKey,
       cursor
     );
-    if (additionalRepositories.length > 0) {
-      let lastCursor =
-        additionalRepositories[additionalRepositories.length - 1].cursor;
-      setCursor(lastCursor);
-      SetSearchedResults((prevState) => [
-        ...prevState,
-        ...additionalRepositories,
-      ]);
-    } else {
-      setCursor(null);
-    }
+    const updatedAdditionalRepositories = matchFavourites(additionalRepositories);
+     SetSearchedResults((prevState) => [
+       ...prevState,
+       ...updatedAdditionalRepositories,
+     ]);
+    updateCursor(updatedAdditionalRepositories);
   };
   return (
     <>

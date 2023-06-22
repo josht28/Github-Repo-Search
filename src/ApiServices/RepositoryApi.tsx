@@ -27,17 +27,7 @@ export const searchRepositories = async function (
       }
     }
   }`;
-    const response = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN} `,
-      },
-      body: JSON.stringify({
-        query: query,
-      }),
-    });
-    const result = await response.json();
+    const result = await queryFetch(query);
     return result.data.search.edges;
 
   } catch (error) {
@@ -74,17 +64,7 @@ export const searchMoreRepositories = async function (
       }
     }
   }`;
-    const response = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN} `,
-      },
-      body: JSON.stringify({
-        query: query,
-      }),
-    });
-    const result = await response.json();
+    const result = await queryFetch(query);
     return result.data.search.edges;
 
   } catch (error) {
@@ -92,3 +72,18 @@ export const searchMoreRepositories = async function (
   throw(error)
   }
 };
+const queryFetch = async function (query:string) {
+  const response = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.REACT_APP_GITHUB_TOKEN} `,
+    },
+    body: JSON.stringify({
+      query: query,
+    }),
+  });
+  const result = await response.json();
+  return result
+
+}

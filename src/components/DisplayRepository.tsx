@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   Link,
-  Rating,
   Button,
   Typography,
 } from '@mui/material';
@@ -32,7 +31,7 @@ export const DisplayRepository = function ({
   };
   return (
     <>
-      <Box
+      <Stack
         sx={{
           backgroundColor: '#EDF3F5',
           padding: '20px',
@@ -41,6 +40,8 @@ export const DisplayRepository = function ({
           minWidth: '350px',
           minHeight: '150px',
         }}
+        direction='column'
+        justifyContent='space-between'
       >
         <Stack
           direction='row'
@@ -48,17 +49,32 @@ export const DisplayRepository = function ({
           alignItems='center'
           marginBottom='20px'
         >
-          <Stack direction='row' alignItems='center'>
+          <Stack
+            sx={{ overflowWrap:'anywhere' }}
+            minWidth='215px'
+            direction='row'
+            alignItems='center'
+          >
             <Avatar
               src={repository.node.owner.avatarUrl}
               sx={{ marginRight: '10px' }}
             ></Avatar>
-            <Link href={repository.node.url} underline='hover' target='_blank'>
+            <Link
+              overflow='wrap'
+              href={repository.node.url}
+              underline='hover'
+              target='_blank'
+            >
               {' '}
               {repository.node.nameWithOwner}
             </Link>
           </Stack>
-          <Button variant='contained' size='small' onClick={handleSetFavourite}>
+          <Button
+            sx={{ minWidth: '100px' }}
+            variant='contained'
+            size='small'
+            onClick={handleSetFavourite}
+          >
             <Stack direction='row' spacing={1} alignItems='center'>
               {repository.node.viewerHasStarred ? (
                 <StarIcon fontSize='small' />
@@ -78,12 +94,12 @@ export const DisplayRepository = function ({
           justifyContent='space-between'
         >
           <Stack direction='row' alignItems='center' spacing={0.5}>
-            <Rating max={1}></Rating>
+            <StarIcon></StarIcon>
             <Box>{repository.node.stargazerCount}</Box>
           </Stack>
           <Box>Updated on {date}</Box>
         </Stack>
-      </Box>
+      </Stack>
     </>
   );
 };

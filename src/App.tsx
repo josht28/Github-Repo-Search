@@ -41,8 +41,13 @@ function App() {
           }
         });
         SetSearchedResults(finalResult);
-        let lastCursor = result[result.length - 1].cursor;
-        setCursor(lastCursor);
+        if (finalResult.length === 10) {
+            let lastCursor = finalResult[finalResult.length - 1].cursor;
+            setCursor(lastCursor);
+        } else {
+          setCursor(null);
+        }
+
       });
     } else {
       SetSearchedResults([]);
@@ -140,7 +145,7 @@ function App() {
                 <Grid container my={4} rowSpacing={4} columnSpacing={8}>
                   {favouriteRepositories.length > 0 &&
                     favouriteRepositories.map((repository) => (
-                      <Grid item sm={6} key={repository.node.id}>
+                      <Grid item md={6} key={repository.node.id}>
                         <FavouriteRepository
                           key={repository.node.id}
                           repository={repository}

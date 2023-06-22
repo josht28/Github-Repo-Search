@@ -8,6 +8,7 @@ import {
   Button,
   Typography,
 } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
 import { Dispatch, SetStateAction } from 'react';
 import moment from 'moment';
 
@@ -51,13 +52,17 @@ export const FavouriteRepository = function ({
 
   return (
     <>
-      <Box
+      <Stack
         sx={{
           backgroundColor: '#EDF3F5',
           padding: '20px',
           borderRadius: '10px',
           boxShadow: 5,
+          minWidth: '350px',
+          minHeight: '150px',
         }}
+        direction='column'
+        justifyContent='space-between'
       >
         <Stack
           direction='row'
@@ -65,17 +70,28 @@ export const FavouriteRepository = function ({
           alignItems='center'
           marginBottom='20px'
         >
-          <Stack direction='row' alignItems='center'>
+          <Stack
+            sx={{ overflowWrap: 'anywhere' }}
+            minWidth='215px'
+            direction='row'
+            alignItems='center'
+          >
             <Avatar
               src={repository.node.owner.avatarUrl}
               sx={{ marginRight: '10px' }}
             ></Avatar>
-            <Link href={repository.node.url} underline='hover' target='_blank'>
+            <Link
+              overflow='wrap'
+              href={repository.node.url}
+              underline='hover'
+              target='_blank'
+            >
               {' '}
               {repository.node.nameWithOwner}
             </Link>
           </Stack>
           <Button
+            sx={{ minWidth: '100px' }}
             variant='contained'
             color='error'
             size='small'
@@ -95,7 +111,7 @@ export const FavouriteRepository = function ({
           <Stack direction='row' alignItems='center' spacing={2}>
             {' '}
             <Stack direction='row' alignItems='center' spacing={0.5}>
-              <Rating max={1}></Rating>
+              <StarIcon></StarIcon>
               <Box>{repository.node.stargazerCount}</Box>
             </Stack>
             <Box>Updated on {date}</Box>{' '}
@@ -115,7 +131,7 @@ export const FavouriteRepository = function ({
             )}
           </Box>
         </Stack>
-      </Box>
+      </Stack>
     </>
   );
 };

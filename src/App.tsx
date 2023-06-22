@@ -15,7 +15,7 @@ import {
 function App() {
   const [searchKey, SetSearchKey] = useState<string>('');
   const [searchedResults, SetSearchedResults] = useState<[] | Repository[]>([]);
-  const [favouriteRepositories, SetFavouriteRepositories] = useState<Repository[]|[]>([]);
+  const [favouriteRepositories, SetFavouriteRepositories] = useState<Repository[] | []>([]);
   const [currentTab, SetCurrentTab] = useState('search');
   const [cursor, setCursor] = useState<string | null>(null);
   const selectTab = function (event: React.SyntheticEvent, newValue: string) {

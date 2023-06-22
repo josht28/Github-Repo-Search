@@ -33,7 +33,7 @@ export const DisplayRepository = function ({
     <>
       <Stack
         sx={{
-          backgroundColor: '#EDF3F5',
+          backgroundColor: 'primary.light',
           padding: '20px',
           borderRadius: '10px',
           boxShadow: 5,
@@ -70,7 +70,7 @@ export const DisplayRepository = function ({
             </Link>
           </Stack>
           <Button
-            sx={{ minWidth: '100px' }}
+            sx={{ minWidth: '130px' }}
             variant='contained'
             size='small'
             onClick={handleSetFavourite}

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import './App.css';
+import { createTheme,ThemeProvider } from '@mui/material/styles';
 import { Box, TextField, Grid, Stack, Tab, Button } from '@mui/material';
 import { useState } from 'react';
 import { Repository } from './datatypes';
@@ -11,6 +12,18 @@ import {
   searchRepositories,
   searchMoreRepositories,
 } from './ApiServices/RepositoryApi';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#005261',
+      light: '#EDF3F5',
+    },
+    secondary: {
+      main:'#31C7AD'
+    }
+  },
+});
 
 function App() {
   const [searchKey, SetSearchKey] = useState<string>('');
@@ -76,94 +89,96 @@ function App() {
   };
   return (
     <>
-      <Box>
-        <Stack
-          direction='row'
-          justifyContent='space-around'
-          alignItems='center'
+      <ThemeProvider theme={theme}>
+        <Box>
+          <Stack
+            direction='row'
+            justifyContent='space-around'
+            alignItems='center'
+            sx={{
+              backgroundColor: '#FFFFFF',
+            }}
+          >
+            <TextField
+              variant='standard'
+              helperText='Search for your favourite repository'
+              sx={{
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                input: {
+                  color: 'primary.main',
+                },
+              }}
+              fullWidth
+              value={searchKey}
+              onChange={(event) => {
+                SetSearchKey(event.target.value);
+              }}
+            ></TextField>
+          </Stack>
+        </Box>
+        <Box
           sx={{
-            backgroundColor: '#FFFFFF',
+            padding: '20px',
           }}
         >
-          <TextField
-            variant='standard'
-            helperText='Search for your favourite repository'
-            sx={{
-              paddingLeft: '20px',
-              paddingRight: '20px',
-              input: {
-                color: '#005261',
-              },
-            }}
-            fullWidth
-            value={searchKey}
-            onChange={(event) => {
-              SetSearchKey(event.target.value);
-            }}
-          ></TextField>
-        </Stack>
-      </Box>
-      <Box
-        sx={{
-          padding: '20px',
-        }}
-      >
-        <Box>
-          <TabContext value={currentTab}>
-            <Box
-              sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-              }}
-            >
-              <TabList aria-label='Tabs' onChange={selectTab}>
-                <Tab label='Search Result' value='search' />
-                <Tab label='Favourites' value='favourites' />
-              </TabList>
-            </Box>
-            <TabPanel value='search'>
-              <>
-                <Grid container my={4} rowSpacing={4} columnSpacing={8}>
-                  {searchedResults.length > 0 &&
-                    searchedResults.map((repository) => (
-                      <Grid item md={6} key={repository.node.id}>
-                        <DisplayRepository
-                          key={repository.node.id}
-                          repository={repository}
-                          SetFavouriteRepositories={SetFavouriteRepositories}
-                        />
-                      </Grid>
-                    ))}
-                </Grid>
-              </>
-              {cursor && (
-                <Stack direction='row' justifyContent='center'>
-                  <Button onClick={handleLoadMore}>Load more results</Button>
-                </Stack>
-              )}
-            </TabPanel>
-            <TabPanel value='favourites'>
-              <>
-                <Grid container my={4} rowSpacing={4} columnSpacing={8}>
-                  {favouriteRepositories.length > 0 &&
-                    favouriteRepositories.map((repository) => (
-                      <Grid item md={6} key={repository.node.id}>
-                        <FavouriteRepository
-                          key={repository.node.id}
-                          repository={repository}
-                          SetFavouriteRepositories={SetFavouriteRepositories}
-                          favouriteRepositories={favouriteRepositories}
-                          searchedResults={searchedResults}
-                          SetSearchedResults={SetSearchedResults}
-                        />
-                      </Grid>
-                    ))}
-                </Grid>
-              </>
-            </TabPanel>
-          </TabContext>
+          <Box>
+            <TabContext value={currentTab}>
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                }}
+              >
+                <TabList aria-label='Tabs' onChange={selectTab} textColor='secondary'indicatorColor='secondary'>
+                  <Tab label='Search Result' value='search' />
+                  <Tab label='Favourites' value='favourites' />
+                </TabList>
+              </Box>
+              <TabPanel value='search'>
+                <>
+                  <Grid container my={4} rowSpacing={4} columnSpacing={8} justifyContent="center">
+                    {searchedResults.length > 0 &&
+                      searchedResults.map((repository) => (
+                        <Grid item md={6} sm={8} key={repository.node.id}>
+                          <DisplayRepository
+                            key={repository.node.id}
+                            repository={repository}
+                            SetFavouriteRepositories={SetFavouriteRepositories}
+                          />
+                        </Grid>
+                      ))}
+                  </Grid>
+                </>
+                {cursor && (
+                  <Stack direction='row' justifyContent='center'>
+                    <Button onClick={handleLoadMore}>Load more results</Button>
+                  </Stack>
+                )}
+              </TabPanel>
+              <TabPanel value='favourites'>
+                <>
+                  <Grid container my={4} rowSpacing={4} columnSpacing={8} justifyContent="center">
+                    {favouriteRepositories.length > 0 &&
+                      favouriteRepositories.map((repository) => (
+                        <Grid item md={6} sm={8} key={repository.node.id}>
+                          <FavouriteRepository
+                            key={repository.node.id}
+                            repository={repository}
+                            SetFavouriteRepositories={SetFavouriteRepositories}
+                            favouriteRepositories={favouriteRepositories}
+                            searchedResults={searchedResults}
+                            SetSearchedResults={SetSearchedResults}
+                          />
+                        </Grid>
+                      ))}
+                  </Grid>
+                </>
+              </TabPanel>
+            </TabContext>
+          </Box>
         </Box>
-      </Box>
+      </ThemeProvider>
     </>
   );
 }

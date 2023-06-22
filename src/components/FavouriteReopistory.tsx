@@ -91,7 +91,7 @@ export const FavouriteRepository = function ({
             </Link>
           </Stack>
           <Button
-            sx={{ minWidth: '100px' }}
+            sx={{ minWidth: '130px' }}
             variant='contained'
             color='error'
             size='small'
